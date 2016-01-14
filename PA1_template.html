@@ -67,9 +67,8 @@ img {
 
 
 <pre class="r"><code>library(ggplot2)
-library(knitr)</code></pre>
-<pre><code>## Warning: package &#39;knitr&#39; was built under R version 3.1.3</code></pre>
-<pre class="r"><code>#opts_chunk$set(fig.path=&#39;figures/&#39;)</code></pre>
+library(knitr)
+library(gridExtra)</code></pre>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
 <pre class="r"><code>d&lt;-read.csv(file = &quot;activity.csv&quot;)</code></pre>
@@ -86,19 +85,20 @@ hist(sumStepsByDate$steps)</code></pre>
 <pre><code>## [1] 10765</code></pre>
 </div>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">
-<h2>What is the average daily activity pattern?</h2>
+<h2>What is the average daily activity pattern</h2>
 <pre class="r"><code>x&lt;-aggregate(d$steps, by = list(d$interval), FUN = median, na.rm=TRUE)
 names(x)&lt;-c(&quot;interval&quot;, &quot;steps&quot;)
 with(x, plot(x$interval, x$steps, type = &#39;n&#39;, ylab = &#39;Steps&#39;, xlab=&#39;Interval&#39;))
 with(x, lines(x$interval, x$steps, col=&#39;black&#39;))</code></pre>
 <p><img src="figures/unnamed-chunk-5-1.png" /><br /> ## Imputing missing values</p>
-<div id="number-of-missing-values" class="section level3">
-<h3>Number of missing values</h3>
+<div id="number-of-missing-values-na-values" class="section level3">
+<h3>Number of missing values (NA values)</h3>
 <pre class="r"><code>NROW(which(is.na(d$steps)))</code></pre>
 <pre><code>## [1] 2304</code></pre>
 </div>
 <div id="replace-na-values-with-median-steps-in-the-interval-over-all-days-without-na-values" class="section level3">
 <h3>Replace NA values with median steps in the interval over all days without NA values</h3>
+<p>The strategy to replace the NA values is to replace them with the median of the current interval over all days</p>
 <pre class="r"><code>medianStepsByInterval&lt;-aggregate(d$steps, by = list(d$interval), FUN = median, na.rm=TRUE)
 names(medianStepsByInterval)&lt;-c(&quot;interval&quot;, &quot;steps&quot;)
 
@@ -136,11 +136,15 @@ d2ax&lt;-aggregate(d2$steps, by = list(d2$interval,d2$daytype), FUN = median)
 names(d2ax)&lt;-c(&quot;interval&quot;, &quot;daytype&quot;, &quot;steps&quot;)
 
 d2a&lt;-d2ax[which(d2ax$daytype==&quot;weekday&quot;),]
-qplot(interval, steps, color=daytype, data=d2a, geom=c(&quot;line&quot;), ylab = &#39;&#39;, main = &#39;&#39;)</code></pre>
-<p><img src="figures/unnamed-chunk-10-1.png" /><br /></p>
-<pre class="r"><code>d2a&lt;-d2ax[which(d2ax$daytype==&quot;weekend&quot;),]
-qplot(interval, steps, color=daytype, data=d2a, geom=c(&quot;line&quot;), ylab = &#39;&#39;, main = &#39;&#39;)</code></pre>
-<p><img src="figures/unnamed-chunk-10-2.png" /><br /> From the graphs it can be concluded, that on the weekend in about the interval 900 to 1600 a much higher step amount can be seen.</p>
+plot1&lt;-qplot(interval, steps, color=daytype, data=d2a, geom=c(&quot;line&quot;), ylab = &#39;&#39;, main = &#39;&#39;)
+
+d2a&lt;-d2ax[which(d2ax$daytype==&quot;weekend&quot;),]
+plot2&lt;-qplot(interval, steps, color=daytype, data=d2a, geom=c(&quot;line&quot;), ylab = &#39;&#39;, main = &#39;&#39;)
+
+plotList&lt;-list(plot1,plot2)
+# using lib gridextra
+do.call(grid.arrange,  plotList)</code></pre>
+<p><img src="figures/unnamed-chunk-10-1.png" /><br /> From the graphs it can be concluded, that on the weekend in about the interval 900 to 1600 a much higher step amount can be seen.</p>
 </div>
 
 

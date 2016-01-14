@@ -1,19 +1,12 @@
 # Reproducible Research: Peer Assessment 1
 
+
+
 ```r
 library(ggplot2)
 library(knitr)
+library(gridExtra)
 ```
-
-```
-## Warning: package 'knitr' was built under R version 3.1.3
-```
-
-```r
-#opts_chunk$set(fig.path='figures/')
-```
-
-
 
 ## Loading and preprocessing the data
 
@@ -51,7 +44,7 @@ median(sumStepsByDate$steps, na.rm = TRUE)
 ## [1] 10765
 ```
 
-## What is the average daily activity pattern?
+## What is the average daily activity pattern
 
 ```r
 x<-aggregate(d$steps, by = list(d$interval), FUN = median, na.rm=TRUE)
@@ -64,7 +57,7 @@ with(x, lines(x$interval, x$steps, col='black'))
 
 ## Imputing missing values
 
-### Number of missing values
+### Number of missing values (NA values)
 
 ```r
 NROW(which(is.na(d$steps)))
@@ -75,6 +68,9 @@ NROW(which(is.na(d$steps)))
 ```
 
 ### Replace NA values with median steps in the interval over all days without NA values
+
+The strategy to replace the NA values is to replace them with the median of the current interval over all days
+
 
 ```r
 medianStepsByInterval<-aggregate(d$steps, by = list(d$interval), FUN = median, na.rm=TRUE)
@@ -132,16 +128,16 @@ d2ax<-aggregate(d2$steps, by = list(d2$interval,d2$daytype), FUN = median)
 names(d2ax)<-c("interval", "daytype", "steps")
 
 d2a<-d2ax[which(d2ax$daytype=="weekday"),]
-qplot(interval, steps, color=daytype, data=d2a, geom=c("line"), ylab = '', main = '')
+plot1<-qplot(interval, steps, color=daytype, data=d2a, geom=c("line"), ylab = '', main = '')
+
+d2a<-d2ax[which(d2ax$daytype=="weekend"),]
+plot2<-qplot(interval, steps, color=daytype, data=d2a, geom=c("line"), ylab = '', main = '')
+
+plotList<-list(plot1,plot2)
+# using lib gridextra
+do.call(grid.arrange,  plotList)
 ```
 
 ![](figures/unnamed-chunk-10-1.png)\
-
-```r
-d2a<-d2ax[which(d2ax$daytype=="weekend"),]
-qplot(interval, steps, color=daytype, data=d2a, geom=c("line"), ylab = '', main = '')
-```
-
-![](figures/unnamed-chunk-10-2.png)\
 
 From the graphs it can be concluded, that on the weekend in about the interval 900 to 1600 a much higher step amount can be seen.
